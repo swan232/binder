@@ -81,7 +81,7 @@ with open(file) as json_file:
 
 # print('Qualtrics qsf file is: /n', data)
 
-
+data['SurveyEntry']['SurveyName'] = data['SurveyEntry']['SurveyName'] + '_modified'
 
 # data.keys()
 # Out[6]: dict_keys(['SurveyEntry', 'SurveyElements'])
@@ -404,52 +404,60 @@ def edit_slider():
 # edit_slider()
 
 
-# [e for e in elements if e['Element'] == "SQ"]
-elements_new = copy.deepcopy(elements)
-# find all questions with slider
-# find all questions with slider
-questions_slider = [q for q in questions if  q['Payload']['QuestionType'] == "Slider"]
-
-# now, programmatically change slider sliderstartposition to 0.5
-elements_new = data_new['SurveyElements']
-
-# now implement this search condition to get the indices of elements that need to be updated 
+def edit_sliderfontsize():
 
 
-# how many elements meet this criterion (one question already starts at 0.5)
-print('How many quesitons need modification: ', len([e_new for e_new in elements_new if check_if_elem_contains_slider(e_new)])) # 51 confirm that this search condition works
+    # find all questions with slider
+    questions_slider = [q for q in questions if  q['Payload']['QuestionType'] == "Slider"]
+
+    # now, programmatically change slider sliderstartposition to 0.5
+    elements_new = data_new['SurveyElements']
+
+    # now implement this search condition to get the indices of elements that need to be updated 
 
 
-index_slider = get_elem_index(elements_new, check_if_elem_contains_slider)
-index_slider
+    # how many elements meet this criterion (one question already starts at 0.5)
+    print('How many quesitons need modification: ', len([e_new for e_new in elements_new if check_if_elem_contains_slider(e_new)])) # 51 confirm that this search condition works
 
 
-thiselem=elements_new[74]
+    index_slider = get_elem_index(elements_new, check_if_elem_contains_slider)
+    index_slider
+
+
+    thiselem=elements_new[74]
+    # print(thiselem['Payload']['Labels']['1']['Display'])
 
 
 
 
-for i in index_slider:
-    # get the element
-    thiselem = elements_new[i]
-    # modify the element
-    # first change MaxSeconds to '0'
-    thiselem['Payload']['Labels']['1']['Display'] = thiselem['Payload']['Labels']['1']['Display'].replace('16px', '20px')
-    thiselem['Payload']['Labels']['2']['Display'] = thiselem['Payload']['Labels']['1']['Display'].replace('16px', '20px')
-    # update elements_new
-    elements_new[i] = thiselem
+    for i in index_slider:
+        # get the element
+        thiselem = elements_new[i]
+        # modify the element
+        # first change smaller font sizes to 20px
+        thiselem['Payload']['Labels']['1']['Display'] = thiselem['Payload']['Labels']['1']['Display'].replace('16px', '20px')
+        thiselem['Payload']['Labels']['2']['Display'] = thiselem['Payload']['Labels']['1']['Display'].replace('16px', '20px')
+        thiselem['Payload']['Labels']['1']['Display'] = thiselem['Payload']['Labels']['1']['Display'].replace('14px', '20px')
+        thiselem['Payload']['Labels']['2']['Display'] = thiselem['Payload']['Labels']['1']['Display'].replace('14px', '20px')
+        # change font color
+        thiselem['Payload']['Labels']['1']['Display'] = thiselem['Payload']['Labels']['1']['Display'].replace('<span style="font-size:20px;">', '<span style="font-size:20px;color:#000000;">' )
+        thiselem['Payload']['Labels']['2']['Display'] = thiselem['Payload']['Labels']['2']['Display'].replace('<span style="font-size:20px;">', '<span style="font-size:20px;color:#000000;">' )
+        
+        # update elements_new
+        elements_new[i] = thiselem
+
+        # update data_new
+        data_new['SurveyElements'] = elements_new
     
-    # update data_new
-    data_new['SurveyElements'] = elements_new
-    
+edit_sliderfontsize()
 
 
 
 # save modified data to a json file in the directory where original json file is stored
-# json_dir = os.path.dirname(file)
-# json_name = os.path.basename(file).replace(".json", ".qsf")
-# print(json_dir, json_name)
-# file_selfpaced = os.path.join(json_dir, "self-paced_"+ json_name)
-# with open(file_selfpaced, 'w') as fp:
-   # json.dump(data_new, fp)
+json_dir = os.path.dirname(file)
+json_name = os.path.basename(file).replace(".json", ".qsf")
+print(json_dir, json_name)
+file_modified = os.path.join(json_dir, "modified_"+ json_name)
+with open(file_modified, 'w') as fp:
+   json.dump(data_new, fp)
      
